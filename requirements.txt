@@ -1,0 +1,4 @@
+pymongo
+sparqlwrapper
+fastapi
+requests
