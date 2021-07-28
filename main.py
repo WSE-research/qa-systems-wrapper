@@ -1,6 +1,6 @@
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import qanswer, platypus, gAnswer, rubq, deeppavlov
+from routers import qanswer, platypus, gAnswer, rubq, deeppavlov, tebaqa
 
 
 app = FastAPI(
@@ -14,6 +14,7 @@ app.include_router(platypus.router)
 app.include_router(gAnswer.router)
 app.include_router(rubq.router)
 app.include_router(deeppavlov.router)
+app.include_router(tebaqa.router)
 
 app.add_middleware(
     CORSMiddleware,
