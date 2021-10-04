@@ -18,7 +18,7 @@ example_lang = "en"
 example_kb = "wikidata"
 
 def parse_gerbil(body):
-    body = body.split('&')
+    body = eval(body).decode('utf-8').split('&')
     query, lang = body[0][body[0].index('=')+1:], body[1][body[1].index('=')+1:-1]
     return query, lang
 

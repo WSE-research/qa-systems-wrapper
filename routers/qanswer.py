@@ -76,11 +76,12 @@ async def get_query_candidates_raw(request: Request, question: str = example_que
 
 @router.post("/gerbil_wikidata", description="Get response for GERBIL platform")
 async def get_response_for_gerbil_over_wikidata(request: Request):
-    cache = find_in_cache('qanswer_' + kb, request.url.path, question)
-    if cache:
-        return JSONResponse(content=cache)
+    # cache = find_in_cache('qanswer_' + kb, request.url.path, question)
+    # if cache:
+        # return JSONResponse(content=cache)
         
     query, lang = parse_gerbil(str(await request.body()))
+    print('GERBIL input:', query, lang)
     query_data = {'query': query, 'lang': lang, 'kb': example_kb}
     response = requests.post(answer_api_url, query_data).json()['questions'][0]['question']
     final_response = {
@@ -97,6 +98,35 @@ async def get_response_for_gerbil_over_wikidata(request: Request):
         }]
     }
     # cache request and response
-    cache_question('qanswer_' + kb, request.url.path, query, query_data, final_response)
+    # cache_question('qanswer_' + kb, request.url.path, query, query_data, final_response)
+    ###
+    return JSONResponse(content=final_response)
+
+
+@router.post("/gerbil_dbpedia", description="Get response for GERBIL platform")
+async def get_response_for_gerbil_over_wikidata(request: Request):
+    # cache = find_in_cache('qanswer_' + kb, request.url.path, question)
+    # if cache:
+        # return JSONResponse(content=cache)
+        
+    query, lang = parse_gerbil(str(await request.body()))
+    print('GERBIL input:', query, lang)
+    query_data = {'query': query, 'lang': lang, 'kb': 'dbpedia'}
+    response = requests.post(answer_api_url, query_data).json()['questions'][0]['question']
+    final_response = {
+        "questions": [{
+            "id": "1",
+            "question": [{
+                "language": lang,
+                "string": query
+		    }],
+            "query": {
+			    "sparql": ""
+		    },
+            "answers": [json.loads(response['answers'])]   
+        }]
+    }
+    # cache request and response
+    # cache_question('qanswer_' + kb, request.url.path, query, query_data, final_response)
     ###
     return JSONResponse(content=final_response)

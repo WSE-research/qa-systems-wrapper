@@ -12,4 +12,4 @@ COPY certs certs
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ENTRYPOINT ["exec uvicorn", "main:app", "--reload", "--host 0.0.0.0", "--port=8080", "--ssl-keyfile=certs/webengineering.ins.hs-anhalt.de/nginx/webengineering.ins.hs-anhalt.de.key", "--ssl-certfile=certs/webengineering.ins.hs-anhalt.de/nginx/webengineering.ins.hs-anhalt.de.cert"]      
+ENTRYPOINT ["uvicorn", "main:app", "--reload", "--host=0.0.0.0", "--port=8080", "--ssl-keyfile=certs/webengineering.ins.hs-anhalt.de.key", "--ssl-certfile=certs/webengineering.ins.hs-anhalt.de.cert"]      

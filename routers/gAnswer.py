@@ -106,11 +106,12 @@ async def get_query_candidates_raw(request: Request, question: str = example_que
 
 @router.post("/gerbil_dbpedia", description="Get response for GERBIL platform")
 async def get_response_for_gerbil_over_dbpedia(request: Request):
-    cache = find_in_cache("gAnswer", request.url.path, question)
-    if cache:
-        return JSONResponse(content=cache)
+    # cache = find_in_cache("gAnswer", request.url.path, question)
+    # if cache:
+    #    return JSONResponse(content=cache)
 
     question, lang = parse_gerbil(str(await request.body()))
+    print('GERBIL input:', query, lang)
     response = requests.get(
         api_url.format(question=question)
     ).json()
@@ -136,6 +137,6 @@ async def get_response_for_gerbil_over_dbpedia(request: Request):
         }]
     }
     # cache request and response
-    cache_question('gAnswer', request.url.path, question, {'question': question}, final_response)
+    # cache_question('gAnswer', request.url.path, question, {'question': question}, final_response)
     ###
     return JSONResponse(content=final_response)
