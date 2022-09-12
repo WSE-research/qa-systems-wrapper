@@ -49,15 +49,15 @@ def reinterpret(string):
 
 @router.post("/gerbil_wikidata", description="Get response for GERBIL platform")
 async def get_response_for_gerbil_over_wikidata(request: Request):
-    # cache = find_in_cache('qanswer_' + kb, request.url.path, question)
-    # if cache:
-        # return JSONResponse(content=cache)
-        
     query, lang = parse_gerbil(str(await request.body()))
     print('GERBIL input:', query, lang)
+
+    cache = find_in_cache('deeppavlov_wikidata', request.url.path, query)
+    if cache:
+        return JSONResponse(content=cache)
     
     response = requests.get(
-        api_url.format(question=query, lang=lang)
+        api_url.format(question=query, lang=lang), timeout=90
     ).json()
 
     if 'uri' in response.keys():
@@ -87,6 +87,6 @@ async def get_response_for_gerbil_over_wikidata(request: Request):
     }
 
     # cache request and response
-    # cache_question('qanswer_' + kb, request.url.path, query, query_data, final_response)
+    cache_question('deeppavlov_wikidata', request.url.path, query, api_url.format(question=query, lang=lang), final_response)
     ###
     return JSONResponse(content=final_response)

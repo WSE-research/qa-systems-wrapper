@@ -2,7 +2,7 @@ import requests
 import json
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
-from routers.config import example_question, example_lang, example_kb, parse_gerbil, cache_question, find_in_cache
+from routers.config import example_question, example_lang, example_kb, parse_gerbil, cache_question, find_in_cache, read_json
 
 answer_api_url = "http://qanswer-core1.univ-st-etienne.fr/api/gerbil" # fetches one (first) answer and corresponding query
 query_candidates_api_url = "https://qanswer-core1.univ-st-etienne.fr/api/qa/full?question={question}&lang={lang}&kb={kb}&user=open"
@@ -76,13 +76,15 @@ async def get_query_candidates_raw(request: Request, question: str = example_que
 
 @router.post("/gerbil_wikidata", description="Get response for GERBIL platform")
 async def get_response_for_gerbil_over_wikidata(request: Request):
-    # cache = find_in_cache('qanswer_' + kb, request.url.path, question)
-    # if cache:
-        # return JSONResponse(content=cache)
-        
     query, lang = parse_gerbil(str(await request.body()))
-    print('GERBIL input:', query, lang)
     query_data = {'query': query, 'lang': lang, 'kb': example_kb}
+    print('GERBIL input:', query, lang)
+    
+    cache = find_in_cache('qanswer_wikidata', request.url.path, query)
+    if cache:
+        return JSONResponse(content=cache)
+        
+    print(answer_api_url, query_data)
     response = requests.post(answer_api_url, query_data).json()['questions'][0]['question']
     final_response = {
         "questions": [{
@@ -98,20 +100,21 @@ async def get_response_for_gerbil_over_wikidata(request: Request):
         }]
     }
     # cache request and response
-    # cache_question('qanswer_' + kb, request.url.path, query, query_data, final_response)
+    cache_question('qanswer_wikidata', request.url.path, query, answer_api_url, final_response)
     ###
     return JSONResponse(content=final_response)
 
 
 @router.post("/gerbil_dbpedia", description="Get response for GERBIL platform")
 async def get_response_for_gerbil_over_wikidata(request: Request):
-    # cache = find_in_cache('qanswer_' + kb, request.url.path, question)
-    # if cache:
-        # return JSONResponse(content=cache)
-        
     query, lang = parse_gerbil(str(await request.body()))
-    print('GERBIL input:', query, lang)
     query_data = {'query': query, 'lang': lang, 'kb': 'dbpedia'}
+    print('GERBIL input:', query, lang)
+
+    cache = find_in_cache('qanswer_dbpedia', request.url.path, query)
+    if cache:
+        return JSONResponse(content=cache)
+        
     response = requests.post(answer_api_url, query_data).json()['questions'][0]['question']
     final_response = {
         "questions": [{
@@ -127,6 +130,16 @@ async def get_response_for_gerbil_over_wikidata(request: Request):
         }]
     }
     # cache request and response
-    # cache_question('qanswer_' + kb, request.url.path, query, query_data, final_response)
+    cache_question('qanswer_dbpedia', request.url.path, query, answer_api_url, final_response)
     ###
+    return JSONResponse(content=final_response)
+
+@router.post("/gerbil_answer_validation_test", description="Get response for GERBIL platform")
+async def get_response_for_gerbil_over_wikidata(request: Request):
+    query, lang = parse_gerbil(str(await request.body()))
+    query_data = {'query': query, 'lang': lang, 'kb': 'dbpedia'}
+    print('GERBIL input:', query, lang)
+        
+    final_response = read_json("routers/test.json")
+    final_response['questions'] = final_response['questions'][:1]
     return JSONResponse(content=final_response)
