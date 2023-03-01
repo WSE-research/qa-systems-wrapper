@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 import re
+import json
 from datetime import datetime
 
 
@@ -10,7 +11,7 @@ example_kb = "wikidata"
 
 def parse_gerbil(body):
     body = eval(body).decode('utf-8').split('&')
-    query, lang = body[0][body[0].index('=')+1:], body[1][body[1].index('=')+1:-1]
+    query, lang = body[0][body[0].index('=')+1:], body[1][body[1].index('=')+1:]
     return query, lang
 
 def preprocess(question):
@@ -40,3 +41,7 @@ def cache_question(system_name: str, path: str, question: str, input_params, out
         db[system_name].insert_one(document)
     except Exception as e:
         print(str(e))
+
+def read_json(filename):
+    with open(filename, 'r') as f:
+        return json.load(f)

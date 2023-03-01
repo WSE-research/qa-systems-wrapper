@@ -42,26 +42,31 @@ async def get_raw_answer(request: Request, question: str = example_question, lan
 
 @router.post("/gerbil_wikidata", description="Get response for GERBIL platform")
 async def get_response_for_gerbil_over_wikidata(request: Request):
-    # cache = find_in_cache('qanswer_' + kb, request.url.path, question)
-    # if cache:
-        # return JSONResponse(content=cache)
+    is_error = False
+    try:
+        query, lang = parse_gerbil(str(await request.body()))
+        print('GERBIL input:', query, lang)
         
-    query, lang = parse_gerbil(str(await request.body()))
-    print('GERBIL input:', query, lang)
-    
-    time.sleep(1) # requested by maintainer to reduce load on the server
+        cache = find_in_cache('platypus_wikidata', request.url.path, query)
+        if cache:
+            return JSONResponse(content=cache)
+        
+        time.sleep(1) # requested by maintainer to reduce load on the server
 
-    response = requests.get(
-        api_url.format(question=query, lang=lang)
-    ).json()
-    
-    result = list()
-    if type(response['member']) == list:
-        result = [m['result']['@id'].replace('wd:', 'http://www.wikidata.org/entity/') for m in response['member'] if '@id' in m['result'].keys()]
-    else:
-        result = [response['member']['result']['@id'].replace('wd:', 'http://www.wikidata.org/entity/')]
+        response = requests.get(
+            api_url.format(question=query, lang=lang, timeout=90)
+        ).json()
+        
+        result = list()
+        if type(response['member']) == list:
+            result = [m['result']['@id'].replace('wd:', 'http://www.wikidata.org/entity/') for m in response['member'] if '@id' in m['result'].keys()]
+        else:
+            result = [response['member']['result']['@id'].replace('wd:', 'http://www.wikidata.org/entity/')]
 
-    answers = [{"x": {"type": "uri", "value": u }} for u in result]
+        answers = [{"x": {"type": "uri", "value": u }} for u in result]
+    except:
+        answers = []
+        is_error = True
     
     final_response = {
         "questions": [{
@@ -83,8 +88,8 @@ async def get_response_for_gerbil_over_wikidata(request: Request):
             }]   
         }]
     }
-    print(final_response)
     # cache request and response
-    # cache_question('qanswer_' + kb, request.url.path, query, query_data, final_response)
+    if not is_error:
+        cache_question('platypus_wikidata', request.url.path, query, api_url.format(question=query, lang=lang), final_response)
     ###
     return JSONResponse(content=final_response)
