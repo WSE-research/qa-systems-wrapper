@@ -2,15 +2,6 @@ from pymongo import MongoClient
 import re
 from datetime import datetime
 
-mongo_client = MongoClient('webengineering.ins.hs-anhalt.de:41052',
-    username='admin',
-    password='admin',
-    authSource='admin'
-)
-
-db = mongo_client.qa_systems_cache
-
-print(db.command("serverStatus"))
 
 example_question = "Where was Angela Merkel born?"
 example_question_ru = "Где место рождения Ангелы Меркель?"

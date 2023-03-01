@@ -4,7 +4,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from routers.config import example_question, example_lang, example_kb, parse_gerbil, cache_question, find_in_cache
 
-answer_api_url = "http://qanswer-core1.univ-st-etienne.fr/api/gerbil" # fetches one (first) answer and corresponding query
+answer_api_url = "https://qanswer-core1.univ-st-etienne.fr/api/gerbil" # fetches one (first) answer and corresponding query
 query_candidates_api_url = "https://qanswer-core1.univ-st-etienne.fr/api/qa/full?question={question}&lang={lang}&kb={kb}&user=open"
 
 router = APIRouter(
@@ -25,10 +25,6 @@ def prettify_answers(answers_raw):
 
 @router.get("/answer", description="Get answer URI")
 async def get_answer(request: Request, question: str = example_question, lang: str = example_lang, kb: str = example_kb):
-    cache = find_in_cache('qanswer_' + kb, request.url.path, question)
-    if cache:
-        return JSONResponse(content=cache)
-
     query_data = {'query': question, 'lang': lang, 'kb': kb}
     response = requests.post(answer_api_url, query_data).json()['questions'][0]['question'] # query to QAnswer
     # preparation of the final response
@@ -38,40 +34,26 @@ async def get_answer(request: Request, question: str = example_question, lang: s
     final_response['SPARQL'] = response['language'][0]['SPARQL']
     final_response['confidence'] = response['language'][0]['confidence']
     # cache request and response
-    cache_question('qanswer_' + kb, request.url.path, question, query_data, final_response)
-    ###
     return JSONResponse(content=final_response)
 
 
 @router.get("/query_candidates", description="Get SPARQL query candidates")
 async def get_query_candidates(request: Request, question: str = example_question, lang: str = example_lang, kb: str = example_kb):
-    cache = find_in_cache('qanswer_' + kb, request.url.path, question)
-    if cache:
-        return JSONResponse(content=cache)
-
     response = requests.get(
         query_candidates_api_url.format(question=question, lang=lang, kb=kb)
     ).json()
     final_response = {'queries': [q['query'] for q in response['queries']]}
     # cache request and response
-    cache_question('qanswer_' + kb, request.url.path, question, {'query': question, 'lang': lang, 'kb': kb}, final_response)
-    ###
     return JSONResponse(content=final_response)
 
 
 @router.get("/query_candidates_raw", description="Get raw SPARQL query candidates")
 async def get_query_candidates_raw(request: Request, question: str = example_question, lang: str = example_lang, kb: str = example_kb):
-    cache = find_in_cache('qanswer_' + kb, request.url.path, question)
-    if cache:
-        return JSONResponse(content=cache)
-
     response = requests.get(
         query_candidates_api_url.format(question=question, lang=lang, kb=kb)
     ).json()
     final_response = [{'query': q['query'], 'confidence': q['confidence']} for q in response['queries']]
     # cache request and response
-    cache_question('qanswer_' + kb, request.url.path, question, {'query': question, 'lang': lang, 'kb': kb}, final_response)
-    ###
     return JSONResponse(content=final_response)
 
 @router.post("/gerbil_wikidata", description="Get response for GERBIL platform")

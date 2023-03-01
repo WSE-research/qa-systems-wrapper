@@ -1,3 +1,5 @@
+import uvicorn
+
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import qanswer, platypus, gAnswer, rubq, deeppavlov, tebaqa
@@ -14,7 +16,7 @@ app.include_router(platypus.router)
 app.include_router(gAnswer.router)
 app.include_router(rubq.router)
 app.include_router(deeppavlov.router)
-app.include_router(tebaqa.router)
+# app.include_router(tebaqa.router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,3 +30,6 @@ app.add_middleware(
 @app.get("/health", include_in_schema=False)
 async def root():
     return {"message": "Hello Bigger Applications!"}
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
