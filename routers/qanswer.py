@@ -82,7 +82,7 @@ async def get_response_for_gerbil_over_wikidata(request: Request):
         }]
     }
     # cache request and response
-    cache_question('qanswer_wikidata', request.url.path, query, answer_api_url, final_response)
+    # cache_question('qanswer_wikidata', request.url.path, query, answer_api_url, final_response)
     ###
     return JSONResponse(content=final_response)
 
@@ -112,7 +112,7 @@ async def get_response_for_gerbil_over_wikidata(request: Request):
         }]
     }
     # cache request and response
-    cache_question('qanswer_dbpedia', request.url.path, query, answer_api_url, final_response)
+    # cache_question('qanswer_dbpedia', request.url.path, query, answer_api_url, final_response)
     ###
     return JSONResponse(content=final_response)
 
