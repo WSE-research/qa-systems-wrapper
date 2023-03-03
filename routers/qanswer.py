@@ -62,9 +62,9 @@ async def get_response_for_gerbil_over_wikidata(request: Request):
     query_data = {'query': query, 'lang': lang, 'kb': example_kb}
     print('GERBIL input:', query, lang)
     
-    cache = find_in_cache('qanswer_wikidata', request.url.path, query)
-    if cache:
-        return JSONResponse(content=cache)
+    # cache = find_in_cache('qanswer_wikidata', request.url.path, query)
+    # if cache:
+        # return JSONResponse(content=cache)
         
     print(answer_api_url, query_data)
     response = requests.post(answer_api_url, query_data).json()['questions'][0]['question']
@@ -93,9 +93,9 @@ async def get_response_for_gerbil_over_wikidata(request: Request):
     query_data = {'query': query, 'lang': lang, 'kb': 'dbpedia'}
     print('GERBIL input:', query, lang)
 
-    cache = find_in_cache('qanswer_dbpedia', request.url.path, query)
-    if cache:
-        return JSONResponse(content=cache)
+    # cache = find_in_cache('qanswer_dbpedia', request.url.path, query)
+    # if cache:
+        # return JSONResponse(content=cache)
         
     response = requests.post(answer_api_url, query_data).json()['questions'][0]['question']
     final_response = {
