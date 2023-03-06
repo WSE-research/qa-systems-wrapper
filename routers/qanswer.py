@@ -4,8 +4,8 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from routers.config import example_question, example_lang, example_kb, parse_gerbil, cache_question, find_in_cache, read_json
 
-answer_api_url = "https://qanswer-core1.univ-st-etienne.fr/api/gerbil" # fetches one (first) answer and corresponding query
-query_candidates_api_url = "https://qanswer-core1.univ-st-etienne.fr/api/qa/full?question={question}&lang={lang}&kb={kb}&user=open"
+answer_api_url = "https://qanswer-core1.univ-st-etienne.fr/api/gerbil?query={query}&lang={lang}&kb={kb}&user=open" # fetches one (first) answer and corresponding query
+query_candidates_api_url = "https://qanswer-core1.univ-st-etienne.fr/api/qa/full?question={query}&lang={lang}&kb={kb}&user=open"
 
 router = APIRouter(
     prefix="/qanswer",
@@ -59,15 +59,13 @@ async def get_query_candidates_raw(request: Request, question: str = example_que
 @router.post("/gerbil_wikidata", description="Get response for GERBIL platform")
 async def get_response_for_gerbil_over_wikidata(request: Request):
     query, lang = parse_gerbil(str(await request.body()))
-    query_data = {'query': query, 'lang': lang, 'kb': example_kb}
     print('GERBIL input:', query, lang)
     
     # cache = find_in_cache('qanswer_wikidata', request.url.path, query)
     # if cache:
         # return JSONResponse(content=cache)
         
-    print(answer_api_url, query_data)
-    response = requests.post(answer_api_url, query_data).json()['questions'][0]['question']
+    response = requests.post(answer_api_url.format(query=query, lang=lang, kb='wikidata')).json()['questions'][0]['question']
     final_response = {
         "questions": [{
             "id": "1",
@@ -90,14 +88,13 @@ async def get_response_for_gerbil_over_wikidata(request: Request):
 @router.post("/gerbil_dbpedia", description="Get response for GERBIL platform")
 async def get_response_for_gerbil_over_wikidata(request: Request):
     query, lang = parse_gerbil(str(await request.body()))
-    query_data = {'query': query, 'lang': lang, 'kb': 'dbpedia'}
     print('GERBIL input:', query, lang)
 
     # cache = find_in_cache('qanswer_dbpedia', request.url.path, query)
     # if cache:
         # return JSONResponse(content=cache)
         
-    response = requests.post(answer_api_url, query_data).json()['questions'][0]['question']
+    response = requests.post(answer_api_url.format(query=query, lang=lang, kb='dbpedia')).json()['questions'][0]['question']
     final_response = {
         "questions": [{
             "id": "1",
