@@ -49,4 +49,4 @@ jobs:
             echo "Pulling image: $DOCKER_IMAGE_NAME" 
             docker pull $DOCKER_IMAGE_NAME:latest
             echo "Starting container: $DOCKER_CONTAINER_NAME" 
-            docker run --restart=always -d -p 40199:8000 --name "$DOCKER_CONTAINER_NAME" "$DOCKER_IMAGE_NAME:latest"
+            docker run --restart=always -d -p 40199:8080 --name "$DOCKER_CONTAINER_NAME" "$DOCKER_IMAGE_NAME:latest"
