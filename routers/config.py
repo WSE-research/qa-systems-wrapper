@@ -1,4 +1,3 @@
-from pymongo import MongoClient
 import re
 import json
 from datetime import datetime
