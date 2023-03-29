@@ -40,16 +40,12 @@ async def get_raw_answer(request: Request, question: str = example_question, lan
     return JSONResponse(content=response)
 
 
-@router.post("/gerbil_wikidata", description="Get response for GERBIL platform")
+@router.post("/gerbil_wikidata", description="Get response for GERBIL platform. Not possible to test in Swagger UI, use cURL: curl -X POST 0.0.0.0:8000/platypus/gerbil_wikidata -d \"question=where was Angela Merkel born?&lang=en\"")
 async def get_response_for_gerbil_over_wikidata(request: Request):
     is_error = False
     try:
         query, lang = parse_gerbil(str(await request.body()))
         print('GERBIL input:', query, lang)
-        
-        cache = find_in_cache('platypus_wikidata', request.url.path, query)
-        if cache:
-            return JSONResponse(content=cache)
         
         time.sleep(1) # requested by maintainer to reduce load on the server
 
@@ -88,8 +84,5 @@ async def get_response_for_gerbil_over_wikidata(request: Request):
             }]   
         }]
     }
-    # cache request and response
-    if not is_error:
-        cache_question('platypus_wikidata', request.url.path, query, api_url.format(question=query, lang=lang), final_response)
-    ###
+
     return JSONResponse(content=final_response)
