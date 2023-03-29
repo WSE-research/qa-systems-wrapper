@@ -2,6 +2,7 @@ name: Docker Image CI
 
 env:
   DOCKER_IMAGE_NAME: wseresearch/qa-systems-wrapper
+  DOCKER_CONTAINER_NAME: qa-systems-wrapper
 
 on:
   push:
@@ -43,4 +44,5 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            ls /home/aperevalov/qa-systems-wrapper
+            docker pull "$DOCKER_IMAGE_NAME:latest"
+            docker run --name "$DOCKER_CONTAINER_NAME" --rm -d -p 40199:8000 "$DOCKER_IMAGE_NAME:latest"
