@@ -4,10 +4,11 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import qanswer, platypus, gAnswer, rubq, deeppavlov, tebaqa
 
+__version__ = "0.0.1"
 
 app = FastAPI(
             title="QA Systems Wrapper",
-            # version=linguaf.__version__,
+            version=__version__,
             description=""
 )
 
