@@ -10,7 +10,6 @@ RUN pip install -r requirements.txt; exit 0
 RUN pip install uvicorn[standard]
 
 COPY main.py ./
-COPY certs certs
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
