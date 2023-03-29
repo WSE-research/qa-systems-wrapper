@@ -43,7 +43,7 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}
-          script: |
+          run: |
             echo "Pulling image: $DOCKER_IMAGE_NAME" 
             docker pull $DOCKER_IMAGE_NAME:latest
             echo "Starting container: $DOCKER_CONTAINER_NAME" 
