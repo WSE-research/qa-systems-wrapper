@@ -44,5 +44,7 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            docker pull "$DOCKER_IMAGE_NAME:latest"
+            echo "Pulling image: " $DOCKER_IMAGE_NAME
+            docker pull $DOCKER_IMAGE_NAME:latest
+            echo "Starting container: " $DOCKER_CONTAINER_NAME
             docker run --restart=always -d -p 40199:8000 --name "$DOCKER_CONTAINER_NAME" "$DOCKER_IMAGE_NAME:latest"
