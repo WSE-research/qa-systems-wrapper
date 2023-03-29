@@ -45,7 +45,8 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           envs: DOCKER_IMAGE_NAME,DOCKER_CONTAINER_NAME
           script: |
+            docker stop "$DOCKER_CONTAINER_NAME" || true && docker rm "$DOCKER_CONTAINER_NAME" || true
             echo "Pulling image: $DOCKER_IMAGE_NAME" 
             docker pull $DOCKER_IMAGE_NAME:latest
             echo "Starting container: $DOCKER_CONTAINER_NAME" 
-            docker run --rm -d -p 40199:8000 --name "$DOCKER_CONTAINER_NAME" "$DOCKER_IMAGE_NAME:latest"
+            docker run --restart=always -d -p 40199:8000 --name "$DOCKER_CONTAINER_NAME" "$DOCKER_IMAGE_NAME:latest"
