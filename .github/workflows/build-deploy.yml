@@ -34,7 +34,8 @@ jobs:
         run: docker push "$DOCKER_IMAGE_NAME:$X_APP_VERSION"
   deploy:
     runs-on: ubuntu-latest
-
+    needs: build
+    
     steps:
       - name: SSH into server
         uses: appleboy/ssh-action@master
