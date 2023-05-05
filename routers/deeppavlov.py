@@ -13,9 +13,9 @@ router = APIRouter(
 
 @router.get("/answer", description="Returns list of answer URIs")
 async def get_answer(request: Request, question: str = example_question, lang: str = example_lang):
-    # cache = find_in_cache("deeppavlov", request.url.path, question)
-    # if cache:
-        # return JSONResponse(content=cache)
+    cache = find_in_cache("deeppavlov", request.url.path, question)
+    if cache:
+        return JSONResponse(content=cache)
 
     response = requests.get(
         api_url.format(question=question, lang=lang)
@@ -31,21 +31,21 @@ async def get_answer(request: Request, question: str = example_question, lang: s
         final_response = {'answer': ['NOTFOUND']}
 
     # cache request and response
-    # cache_question('deeppavlov', request.url.path, question, {'question': question, 'lang': lang}, final_response)
+    cache_question('deeppavlov', request.url.path, question, {'question': question, 'lang': lang}, final_response)
     ###
     return JSONResponse(content=final_response)
 
 @router.get("/answer_raw", description="Returns raw output from the system")
 async def get_raw_answer(request: Request, question: str = example_question, lang: str = example_lang):
-    # cache = find_in_cache("deeppavlov", request.url.path, question)
-    # if cache:
-        # return JSONResponse(content=cache)
+    cache = find_in_cache("deeppavlov", request.url.path, question)
+    if cache:
+        return JSONResponse(content=cache)
 
     response = requests.get(
         api_url.format(question=question, lang=lang)
     ).json()
     # cache request and response
-    # cache_question('deeppavlov', request.url.path, question, {'question': question, 'lang': lang}, response)
+    cache_question('deeppavlov', request.url.path, question, {'question': question, 'lang': lang}, response)
     ###
     return JSONResponse(content=response)
 
@@ -54,9 +54,9 @@ async def get_response_for_gerbil_over_wikidata(request: Request):
     query, lang = parse_gerbil(str(await request.body()))
     print('GERBIL input:', query, lang)
 
-    # cache = find_in_cache('deeppavlov_wikidata', request.url.path, query)
-    # if cache:
-        # return JSONResponse(content=cache)
+    cache = find_in_cache('deeppavlov_wikidata', request.url.path, query)
+    if cache:
+        return JSONResponse(content=cache)
     
     response = requests.get(
         api_url.format(question=query, lang=lang), timeout=90
@@ -98,6 +98,6 @@ async def get_response_for_gerbil_over_wikidata(request: Request):
     }
 
     # cache request and response
-    # cache_question('deeppavlov_wikidata', request.url.path, query, api_url.format(question=query, lang=lang), final_response)
+    cache_question('deeppavlov_wikidata', request.url.path, query, api_url.format(question=query, lang=lang), final_response)
     ###
     return JSONResponse(content=final_response)

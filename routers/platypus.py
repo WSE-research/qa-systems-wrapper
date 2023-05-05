@@ -15,6 +15,10 @@ router = APIRouter(
 
 @router.get("/answer", description="Returns list of answer URIs")
 async def get_answer(request: Request, question: str = example_question, lang: str = example_lang):
+    cache = find_in_cache("platypus", request.url.path, question)
+    if cache:
+        return JSONResponse(content=cache)
+    
     time.sleep(1) # requested by maintainer to reduce load on the server
 
     response = requests.get(
@@ -28,23 +32,39 @@ async def get_answer(request: Request, question: str = example_question, lang: s
         result = [response['member']['result']['@id'].replace('wd:', 'http://www.wikidata.org/entity/')]
     final_response = {'answer': result}
 
+    # cache request and response
+    cache_question('platypus', request.url.path, question, {'question': question, 'lang': lang}, final_response)
+    ###
     return JSONResponse(content=final_response)
 
 @router.get("/answer_raw", description="Returns raw output from the system")
 async def get_raw_answer(request: Request, question: str = example_question, lang: str = example_lang):
+    cache = find_in_cache("platypus", request.url.path, question)
+    if cache:
+        return JSONResponse(content=cache)
+    
     time.sleep(1) # requested by maintainer to reduce load on the server
 
     response = requests.get(
         api_url.format(question=question, lang=lang)
     ).json()
+
+    # cache request and response
+    cache_question('platypus', request.url.path, question, {'question': question, 'lang': lang}, response)
+    ###
     return JSONResponse(content=response)
 
 
 @router.post("/gerbil_wikidata", description="Get response for GERBIL platform. Not possible to test in Swagger UI, use cURL: curl -X POST 0.0.0.0:8000/platypus/gerbil_wikidata -d \"question=where was Angela Merkel born?&lang=en\"")
-async def get_response_for_gerbil_over_wikidata(request: Request):
+async def get_response_for_gerbil_over_wikidata(request: Request):    
     is_error = False
     try:
         query, lang = parse_gerbil(str(await request.body()))
+        
+        cache = find_in_cache("platypus", request.url.path, query)
+        if cache:
+            return JSONResponse(content=cache)
+        
         print('GERBIL input:', query, lang)
         
         time.sleep(1) # requested by maintainer to reduce load on the server
@@ -84,5 +104,9 @@ async def get_response_for_gerbil_over_wikidata(request: Request):
             }]   
         }]
     }
+
+    # cache request and response
+    cache_question('platypus', request.url.path, query, {'question': query, 'lang': lang}, final_response)
+    ###
 
     return JSONResponse(content=final_response)
