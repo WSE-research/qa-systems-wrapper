@@ -1,10 +1,10 @@
 import uvicorn
 
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import qanswer, platypus, gAnswer, rubq, deeppavlov, tebaqa
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 app = FastAPI(
             title="QA Systems Wrapper",

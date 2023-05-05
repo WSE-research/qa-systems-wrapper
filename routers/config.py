@@ -1,12 +1,21 @@
 import re
 import json
 from datetime import datetime
+from pymongo import MongoClient
 
 
 example_question = "Where was Angela Merkel born?"
 example_question_ru = "Где место рождения Ангелы Меркель?"
 example_lang = "en"
 example_kb = "wikidata"
+
+mongo_client = MongoClient('141.57.8.18:40200',
+    username='admin',
+    password='admin123',
+    authSource='admin'
+)
+
+db = mongo_client.qa_systems_cache
 
 def parse_gerbil(body):
     body = eval(body).decode('utf-8').split('&')
