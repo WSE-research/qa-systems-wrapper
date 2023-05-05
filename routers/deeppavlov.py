@@ -21,7 +21,9 @@ async def get_answer(request: Request, question: str = example_question, lang: s
         api_url.format(question=question, lang=lang)
     ).json()
     
-    if len(response) > 0 and len(response[0]) > 0 and 'Q' in response[0][1]:
+    if type(response) != list:
+        final_response = {'answer': ['NOTFOUND']}
+    elif len(response) > 0 and len(response[0]) > 0 and 'Q' in response[0][1]:
         final_response = {'answer': ['http://www.wikidata.org/entity/' + response[0][1]]}
     elif len(response) > 0 and len(response[0]) > 0 and 'Q' not in response[0][1] and not response[0][0] == 'Not Found':
         final_response = {'answer': ['http://www.wikidata.org/entity/' + response[0][0]]}
@@ -60,7 +62,9 @@ async def get_response_for_gerbil_over_wikidata(request: Request):
         api_url.format(question=query, lang=lang), timeout=90
     ).json()
 
-    if len(response) > 0 and len(response[0]) > 0 and 'Q' in response[0][1]:
+    if type(response) != list:
+        answers = []
+    elif len(response) > 0 and len(response[0]) > 0 and 'Q' in response[0][1]:
         answer_value = 'http://www.wikidata.org/entity/' + response[0][1]
     elif len(response) > 0 and len(response[0]) > 0 and 'Q' not in response[0][1] and not response[0][0] == 'Not Found':
         answer_value = 'http://www.wikidata.org/entity/' + response[0][0]
