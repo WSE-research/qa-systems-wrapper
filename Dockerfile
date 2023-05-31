@@ -15,4 +15,4 @@ COPY routers routers
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ENTRYPOINT ["uvicorn", "main:app", "--host=0.0.0.0", "--port=8080"]      
+ENTRYPOINT ["uvicorn", "main:app", "--workers=4", "--host=0.0.0.0", "--port=8080"]      
