@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import qanswer, platypus, gAnswer, rubq, deeppavlov, tebaqa
 
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 
 app = FastAPI(
             title="QA Systems Wrapper",
