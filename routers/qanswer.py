@@ -29,18 +29,22 @@ async def get_answer(request: Request, question: str = example_question, lang: s
     if cache:
         return JSONResponse(content=cache)
     
-    response = requests.post(answer_api_url.format(query=question, lang=lang, kb=kb)).json()
-    parsed_response = response['questions'][0]['question'] # query to QAnswer
-    # preparation of the final response
-    final_response = { 'answer': None, 'answers_raw': None, 'SPARQL': None, 'confidence': None}
-    final_response['answers_raw'] = json.loads(parsed_response['answers'])
-    final_response['answer'] = prettify_answers(final_response['answers_raw'])
-    final_response['SPARQL'] = parsed_response['language'][0]['SPARQL']
-    final_response['confidence'] = parsed_response['language'][0]['confidence']
+    try:
+        response = requests.post(answer_api_url.format(query=question, lang=lang, kb=kb)).json()
+        parsed_response = response['questions'][0]['question'] # query to QAnswer
+        # preparation of the final response
+        final_response = { 'answer': None, 'answers_raw': None, 'SPARQL': None, 'confidence': None}
+        final_response['answers_raw'] = json.loads(parsed_response['answers'])
+        final_response['answer'] = prettify_answers(final_response['answers_raw'])
+        final_response['SPARQL'] = parsed_response['language'][0]['SPARQL']
+        final_response['confidence'] = parsed_response['language'][0]['confidence']
 
-    # cache request and response
-    cache_question('qanswer', request.url.path, question, {'question': question, 'lang': lang}, final_response)
-    ###
+        # cache request and response
+        cache_question('qanswer', request.url.path, question, {'question': question, 'lang': lang}, final_response)
+        ###
+    except Exception as e:
+        print(str(e))
+        final_response = {'answer': None, 'answers_raw': None, 'SPARQL': None, 'confidence': None}
 
     return JSONResponse(content=final_response)
 

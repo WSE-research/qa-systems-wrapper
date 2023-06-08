@@ -28,7 +28,7 @@ async def get_answer(request: Request, question: str = example_question, lang: s
     # cache request and response
     cache_question('tebaqa', request.url.path, question, {'question': question, 'lang': lang}, final_response)
     ###
-    
+
     return JSONResponse(content=final_response)
 
 @router.get("/answer", description="Returns list of answer URIs (not candidates, hence, non-ranked list)")
@@ -37,12 +37,16 @@ async def get_query_candidates(request: Request, question: str = example_questio
     if cache:
         return JSONResponse(content=cache)
 
-    query_data = {'query': question, 'lang': lang}
-    response = requests.post(simple_api_url, query_data).json()
-    final_response = {'answer': response['answers'], 'sparql': response['sparql']}
+    try:
+        query_data = {'query': question, 'lang': lang}
+        response = requests.post(simple_api_url, query_data).json()
+        final_response = {'answer': response['answers'], 'sparql': response['sparql']}
 
-    # cache request and response
-    cache_question('tebaqa', request.url.path, question, {'question': question, 'lang': lang}, final_response)
-    ###
+        # cache request and response
+        cache_question('tebaqa', request.url.path, question, {'question': question, 'lang': lang}, final_response)
+        ###
+    except Exception as e:
+        print(str(e))
+        final_response = {'answer': ['NOTFOUND']}
 
     return JSONResponse(content=final_response)
