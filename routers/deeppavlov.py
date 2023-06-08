@@ -17,22 +17,27 @@ async def get_answer(request: Request, question: str = example_question, lang: s
     if cache:
         return JSONResponse(content=cache)
 
-    response = requests.get(
-        api_url.format(question=question, lang=lang)
-    ).json()
-    
-    if type(response) != list:
-        final_response = {'answer': ['NOTFOUND']}
-    elif len(response) > 0 and len(response[0]) > 0 and 'Q' in response[0][1]:
-        final_response = {'answer': ['http://www.wikidata.org/entity/' + response[0][1]]}
-    elif len(response) > 0 and len(response[0]) > 0 and 'Q' not in response[0][1] and not response[0][0] == 'Not Found':
-        final_response = {'answer': ['http://www.wikidata.org/entity/' + response[0][0]]}
-    else:
+    try:
+        response = requests.get(
+            api_url.format(question=question, lang=lang)
+        ).json()
+        
+        if type(response) != list:
+            final_response = {'answer': ['NOTFOUND']}
+        elif len(response) > 0 and len(response[0]) > 0 and 'Q' in response[0][1]:
+            final_response = {'answer': ['http://www.wikidata.org/entity/' + response[0][1]]}
+        elif len(response) > 0 and len(response[0]) > 0 and 'Q' not in response[0][1] and not response[0][0] == 'Not Found':
+            final_response = {'answer': ['http://www.wikidata.org/entity/' + response[0][0]]}
+        else:
+            final_response = {'answer': ['NOTFOUND']}
+
+        # cache request and response
+        cache_question('deeppavlov', request.url.path, question, {'question': question, 'lang': lang}, final_response)
+        ###
+    except Exception as e:
+        print(str(e))
         final_response = {'answer': ['NOTFOUND']}
 
-    # cache request and response
-    cache_question('deeppavlov', request.url.path, question, {'question': question, 'lang': lang}, final_response)
-    ###
     return JSONResponse(content=final_response)
 
 @router.get("/answer_raw", description="Returns raw output from the system")
