@@ -2,9 +2,9 @@ import uvicorn
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import qanswer, platypus, gAnswer, rubq, deeppavlov, tebaqa
+from routers import qanswer, platypus, gAnswer, rubq, deeppavlov, tebaqa, qanary
 
-__version__ = "0.0.4"
+__version__ = "0.0.5"
 
 app = FastAPI(
             title="QA Systems Wrapper",
@@ -18,6 +18,7 @@ app.include_router(platypus.router)
 # app.include_router(rubq.router)
 app.include_router(deeppavlov.router)
 app.include_router(tebaqa.router)
+app.include_router(qanary.router)
 
 app.add_middleware(
     CORSMiddleware,
