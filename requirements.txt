@@ -4,3 +4,4 @@ fastapi
 SPARQLWrapper
 python-multipart
 pymongo
+qanary-helpers

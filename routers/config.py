@@ -9,6 +9,18 @@ example_question_ru = "Где место рождения Ангелы Мерк�
 example_lang = "en"
 example_kb = "wikidata"
 
+dummy_answers = {
+    "head": {
+        "link": [],
+        "vars": [
+            "dummy"
+        ]
+    },
+    "results": {
+        "bindings": []
+    }
+}
+
 mongo_client = MongoClient('141.57.8.18:40200',
     username='admin',
     password='admin123',
