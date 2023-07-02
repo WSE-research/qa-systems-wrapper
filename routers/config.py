@@ -37,6 +37,12 @@ def parse_gerbil(body):
 def preprocess(question):
     return re.sub('[^A-Za-zА-Яа-яÀ-žÄäÖöÜüß0-9]+', ' ', question).lower().strip()
 
+def delete_cache(system_name: str, path: str):
+    try:
+        db[system_name].delete_many({'path': path})
+    except Exception as e:
+        print(str(e))
+
 def find_in_cache(system_name: str, path: str, question: str):
     try:
         result = db[system_name].find_one({'question': preprocess(question), 'path': path})
