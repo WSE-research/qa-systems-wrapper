@@ -65,23 +65,28 @@ async def get_answer(request: Request, question: str = example_question):
     if cache:
         return JSONResponse(content=cache)
 
-    response = requests.get(
-        api_url.format(question=question)
-    ).json()
-    query = add_prefixes(response['sparql'][0].replace('\t',' '))
-    sparql.setQuery(query)
-    sparql.setReturnFormat(JSON)
-    results = sparql.query().convert()
-    
-    answer = list()
-    for res in results["results"]["bindings"]:
-        for v in list(res.values()):
-            answer.append(v['value'])
+    try:
+        response = requests.get(
+            api_url.format(question=question)
+        ).json()
+        query = add_prefixes(response['sparql'][0].replace('\t',' '))
+        sparql.setQuery(query)
+        sparql.setReturnFormat(JSON)
+        results = sparql.query().convert()
+        
+        answer = list()
+        for res in results["results"]["bindings"]:
+            for v in list(res.values()):
+                answer.append(v['value'])
 
-    final_response = {'answer': answer}
-    # cache request and response
-    # cache_question('gAnswer', request.url.path, question, {'question': question}, final_response)
-    ###
+        final_response = {'answer': answer}
+        # cache request and response
+        cache_question('gAnswer', request.url.path, question, {'question': question}, final_response)
+        ###
+    except Exception as e:
+        print(e)
+        final_response = {'answer': []}
+        
     return JSONResponse(content=final_response)
 
 @router.get("/query_candidates", description="Returns list of SPARQL queries")
