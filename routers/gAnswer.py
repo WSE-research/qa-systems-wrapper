@@ -1,14 +1,24 @@
 import requests
-import json
-import time
+from rdflib import RDF, RDFS, OWL
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
-from routers.config import example_question, parse_gerbil, cache_question, find_in_cache
+from routers.config import example_question, parse_gerbil, cache_question, find_in_cache, read_json
 import re
 from SPARQLWrapper import SPARQLWrapper, JSON
 
 sparql = SPARQLWrapper("http://dbpedia.org/sparql")
-api_url = "http://localhost:9999/gSolve/?data={{question:{question}}}"
+api_url = "http://141.57.8.18:9999/gSolve/?data={{question:{question}}}"
+
+# generate dict inline
+
+concepts = {prefix + ":": read_json(f"static/gAnswer/{prefix}_concepts.json") for prefix in ["rdf", "rdfs", "owl", "dbo"]}
+pref_uri = {
+    "rdf:": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs:": "http://www.w3.org/2000/01/rdf-schema#",
+    "owl:": "http://www.w3.org/2002/07/owl#",
+    "dbo:": "http://dbpedia.org/ontology/",
+    "dbr:": "http://dbpedia.org/resource/",
+}
 prefixes_query = """
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX dbp: <http://dbpedia.org/property/>
@@ -32,19 +42,20 @@ router = APIRouter(
 )
 
 def add_prefixes(source_query):
-    prefixes = ['rdf:', 'rdfs:', 'foaf:', 'dbr:', 'dbo:', 'dbp:']
+    # load all possible prefixes and their corresponding classes and search for matches otherwise use dbr:
+    prefixes = ['rdf:', 'rdfs:', 'owl:', 'dbo:']
     no_pref_ents = [e for e in re.findall(r'<(.*?)>', source_query) if ':' not in e]
 
     for ent in no_pref_ents:
-        candidate_entities = ' '.join(prefix+ent for prefix in prefixes)
-
-        sparql.setQuery(prefixes_query.format(candidate_entities=candidate_entities))
-        sparql.setReturnFormat(JSON)
-        results = sparql.query().convert()
-
-        for result in results["results"]["bindings"]:
-            source_query = source_query.replace(ent, result["x"]["value"].replace("property", "ontology"))
-            break
+        replacement = ''
+        for prefix in prefixes:
+            if prefix + ent in concepts[prefix]:
+                replacement = pref_uri[prefix] + ent
+                source_query = source_query.replace(ent, replacement)
+                break
+        # fallback to dbr:    
+        if replacement == '':
+            source_query = source_query.replace(ent, pref_uri['dbr:'] + ent)
         
     return source_query
 
@@ -69,7 +80,7 @@ async def get_answer(request: Request, question: str = example_question):
 
     final_response = {'answer': answer}
     # cache request and response
-    cache_question('gAnswer', request.url.path, question, {'question': question}, final_response)
+    # cache_question('gAnswer', request.url.path, question, {'question': question}, final_response)
     ###
     return JSONResponse(content=final_response)
 

@@ -14,7 +14,7 @@ app = FastAPI(
 
 app.include_router(qanswer.router)
 app.include_router(platypus.router)
-# app.include_router(gAnswer.router)
+app.include_router(gAnswer.router)
 # app.include_router(rubq.router)
 app.include_router(deeppavlov.router)
 app.include_router(tebaqa.router)
