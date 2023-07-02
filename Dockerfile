@@ -12,6 +12,7 @@ RUN pip install --force-reinstall httpcore==0.15
 
 COPY main.py ./
 COPY routers routers
+COPY static static
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
