@@ -2,7 +2,7 @@ import uvicorn
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import qanswer, platypus, gAnswer, rubq, deeppavlov, tebaqa, qanary
+from routers import qanswer, platypus, gAnswer, rubq, deeppavlov, tebaqa, qanary, deeppavlov2023
 
 __version__ = "0.0.6"
 
@@ -19,6 +19,7 @@ app.include_router(gAnswer.router)
 app.include_router(deeppavlov.router)
 app.include_router(tebaqa.router)
 app.include_router(qanary.router)
+app.include_router(deeppavlov2023.router)
 
 app.add_middleware(
     CORSMiddleware,
