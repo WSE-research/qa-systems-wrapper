@@ -2,7 +2,7 @@ import uvicorn
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import qanswer, platypus, gAnswer, rubq, deeppavlov, tebaqa, qanary, deeppavlov2023
+from routers import qanswer, platypus, gAnswer, deeppavlov, tebaqa, qanary, deeppavlov2023
 
 __version__ = "0.0.6"
 
